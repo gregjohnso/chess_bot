@@ -85,6 +85,7 @@ def board2vec_next_moves(board):
     return next_moves_vec
 
 def board2vec_history(board):
+    board = board.copy()
     
     move_list = list()
     
