@@ -1,5 +1,6 @@
 from scipy.special import entr
 import numpy as np
+# import torch
 
 import pdb
 
@@ -17,9 +18,21 @@ class RandoBot(object):
     def choose_move(self, board):
         return pick_rando_move(board)
 
+class TorchBot(object):
+    def __init__(self, torch_model, state='explore'):
+        self.model = torch_model
+        self.state = state
+        
+    def choose_move(self, board):
+        pass
+        
+    def train_from_board(self, boards):
+        pass
+
+
 class SKLearnBot(object):
-    def __init__(self, model, state='explore'):
-        self.model = model
+    def __init__(self, sklearn_model, state='explore'):
+        self.model = sklearn_model
         self.state = 'explore'
         
     def choose_move(self, board):
@@ -82,4 +95,6 @@ class SKLearnBot(object):
         all_won_game = np.hstack(all_won_game)
         
         self.model.fit(all_moves, all_won_game)
+        
+    
         
