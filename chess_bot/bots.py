@@ -18,18 +18,6 @@ class RandoBot(object):
     def choose_move(self, board):
         return pick_rando_move(board)
 
-class TorchBot(object):
-    def __init__(self, torch_model, state='explore'):
-        self.model = torch_model
-        self.state = state
-        
-    def choose_move(self, board):
-        pass
-        
-    def train_from_board(self, boards):
-        pass
-
-
 class SKLearnBot(object):
     def __init__(self, sklearn_model, state='explore'):
         self.model = sklearn_model
