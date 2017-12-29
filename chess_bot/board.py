@@ -1,11 +1,15 @@
 from chess import Board as PyChessBoard
 import numpy as np
 
+import pdb
 
 class Board(PyChessBoard):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
+       
+    def __len__(self):
+        return self.fullmove_number*2 - self.turn
+
     def vec(self):
         return board2vec(self)
     
@@ -18,11 +22,7 @@ class Board(PyChessBoard):
     def who_won(self):
         return who_won(self)
 
-
-def piece2vec(piece_str):
-    """Converts a string representation of a piece to a one-hot representation"""
-    
-    piece_dictionary = { #ignore empty position
+piece_dictionary = { #ignore empty position
                         'B': 0, 
                         'K': 1,
                         'N': 2,
@@ -36,7 +36,10 @@ def piece2vec(piece_str):
                         'q': 10,
                         'r': 11}
     
-    piece_vec = np.zeros(len(piece_dictionary)) > 0
+def piece2vec(piece_str):
+    """Converts a string representation of a piece to a one-hot representation"""
+    
+    piece_vec = np.zeros(len(piece_dictionary))
     
     if piece_str in piece_dictionary:
         piece_vec[piece_dictionary[piece_str]] = True
@@ -50,18 +53,16 @@ def board2vec(board):
 
     # print(board_state)
     board_state = board_state.split('\n')
-    board_state = [row.split(' ') for row in board_state]
+    board_state = np.array([row.split(' ') for row in board_state])
 
+    has_piece = np.array(board_state) != '.'
+    i, j = np.where(has_piece)
+    
+    pieces = [piece_dictionary[piece] for piece in board_state[has_piece]]
+    
     board_vector = np.zeros([12, 8, 8])
-
-    # for every row
-    for i in range(0, len(board_state)):
-        #for every column
-        for j in range(0, len(board_state[0])):
-            piece_str = board_state[i][j]
-
-            board_vector[piece2vec(piece_str), i,j] = 1
-
+    board_vector[pieces, i, j] = 1
+    
     return [board_vector, board.turn]
             
 def vec2board(board, turn):    
@@ -73,33 +74,44 @@ def vec2board(board, turn):
 def board2vec_next_moves(board):
     """Returns a list of next legal moves as board vectors"""
     
-    next_moves_vec = list()
+    move_list = list()
+    turn_list = list()
     
     for move in board.legal_moves:
         board_tmp = board.copy()
         board_tmp.push(move)
         
-        next_move_vec = board2vec(board_tmp)
-        next_moves_vec.append(next_move_vec)
+        board_vec, turn = board2vec(board_tmp)
+        move_list.append(board_vec)
+        turn_list.append(turn)
         
-    return next_moves_vec
+    return move_list, turn_list
 
 def board2vec_history(board):
     board = board.copy()
     
-    move_list = list()
+    board_len = len(board)
     
+    move_list = list()
+    turn_list = list()
     isempty = False
     c = 0
-    while not isempty:
-        c+=1
-        move_list.append(board2vec(board))
-        try:
+    
+    #pop off every move, and get it's vector form
+    for i in range(0, board_len):
+        
+        board_vec, turn = board2vec(board)
+        
+        move_list.append(board_vec)
+        turn_list.append(turn)
+        
+        if i < (board_len-1):
             board.pop()
-        except:
-            isempty = True
+    
+    move_list = move_list[::-1]
+    turn_list = turn_list[::-1]
             
-    return move_list[::-1]
+    return move_list, turn_list
     
     
 def who_won(board):
