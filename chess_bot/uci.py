@@ -1,5 +1,6 @@
 import board
 import bots
+import capture_bot
 import chess
 import sys
 # import time
@@ -24,7 +25,7 @@ sys.stdout = Unbuffered(sys.stdout)
 def main():
     pos = board.Board(chess.STARTING_FEN)
 
-    engine = bots.RandoBot()
+    engine = capture_bot.CaptureBot()
 
     our_time, opp_time = 1000, 1000  # time in centi-seconds
 
